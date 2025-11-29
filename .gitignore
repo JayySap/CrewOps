@@ -1,0 +1,63 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider files
+.idea/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+# SQLite database files (local dev only)
+*.db
+*.db-shm
+*.db-wal
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+
+# dotnet tool manifest
+# Uncomment if using local tools
+# .config/
+
+# Secrets (never commit these!)
+appsettings.*.local.json
+*.pfx
+*.p12
+
+# Claude Code context file
+CLAUDE.md

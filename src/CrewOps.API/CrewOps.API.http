@@ -1,0 +1,6 @@
+@CrewOps.API_HostAddress = http://localhost:5152
+
+GET {{CrewOps.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
