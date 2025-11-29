@@ -10,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure JSON to serialize enums as strings (e.g., "Pending" instead of 0)
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+});
+
 // Register the DbContext with dependency injection
 // This tells the app: "When someone asks for CrewOpsDbContext, create one using SQLite"
 builder.Services.AddDbContext<CrewOpsDbContext>(options =>

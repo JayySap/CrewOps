@@ -65,7 +65,8 @@ dotnet ef migrations add <MigrationName>
 
 ## Project Structure
 
-```
+```bash
+
 CrewOps/
 ├── CrewOps.sln
 └── src/

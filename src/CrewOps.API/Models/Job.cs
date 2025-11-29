@@ -18,4 +18,7 @@ public class Job
     public DateTime? EndDate { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation property - crew members assigned to this job
+    public List<JobAssignment> Assignments { get; set; } = [];
 }

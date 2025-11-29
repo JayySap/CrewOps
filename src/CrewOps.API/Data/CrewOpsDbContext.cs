@@ -21,6 +21,9 @@ public class CrewOpsDbContext : DbContext
     // Jobs table
     public DbSet<Job> Jobs => Set<Job>();
 
+    // JobAssignments table (join table for Many-to-Many)
+    public DbSet<JobAssignment> JobAssignments => Set<JobAssignment>();
+
     // OnModelCreating lets you configure how entities map to database tables
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +72,28 @@ public class CrewOpsDbContext : DbContext
                 .HasConversion<string>()
                 .HasMaxLength(20)
                 .HasDefaultValue(JobStatus.Pending);
+        });
+
+        // Configure the JobAssignment join entity
+        modelBuilder.Entity<JobAssignment>(entity =>
+        {
+            // Composite primary key - prevents duplicate assignments
+            entity.HasKey(ja => new { ja.JobId, ja.CrewMemberId });
+
+            // Relationship: JobAssignment -> Job
+            entity.HasOne(ja => ja.Job)
+                .WithMany(j => j.Assignments)
+                .HasForeignKey(ja => ja.JobId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete assignments when job is deleted
+
+            // Relationship: JobAssignment -> CrewMember
+            entity.HasOne(ja => ja.CrewMember)
+                .WithMany(c => c.Assignments)
+                .HasForeignKey(ja => ja.CrewMemberId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete assignments when crew member is deleted
+
+            entity.Property(ja => ja.Role)
+                .HasMaxLength(50);
         });
     }
 }

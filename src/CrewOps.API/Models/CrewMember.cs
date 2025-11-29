@@ -22,4 +22,7 @@ public class CrewMember
 
     // When this crew member was added to the system
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation property - jobs this crew member is assigned to
+    public List<JobAssignment> Assignments { get; set; } = [];
 }
