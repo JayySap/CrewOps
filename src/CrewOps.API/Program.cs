@@ -63,6 +63,10 @@ app.MapGroup("/api/jobs")
     .WithTags("Jobs")
     .MapJobEndpoints();
 
+app.MapGroup("/api/time")
+    .WithTags("TimeTracking")
+    .MapTimeEntryEndpoints();
+
 // ============================================
 // DEFAULT WEATHER ENDPOINT (from template)
 // ============================================

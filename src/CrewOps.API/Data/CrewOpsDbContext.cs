@@ -24,6 +24,9 @@ public class CrewOpsDbContext : DbContext
     // JobAssignments table (join table for Many-to-Many)
     public DbSet<JobAssignment> JobAssignments => Set<JobAssignment>();
 
+    // TimeEntries table
+    public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
+
     // OnModelCreating lets you configure how entities map to database tables
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -94,6 +97,28 @@ public class CrewOpsDbContext : DbContext
 
             entity.Property(ja => ja.Role)
                 .HasMaxLength(50);
+        });
+
+        // Configure the TimeEntry entity
+        modelBuilder.Entity<TimeEntry>(entity =>
+        {
+            entity.Property(e => e.ClockInTime)
+                .IsRequired();
+
+            entity.Property(e => e.Notes)
+                .HasMaxLength(500);
+
+            // Relationship: TimeEntry -> CrewMember
+            entity.HasOne(te => te.CrewMember)
+                .WithMany()
+                .HasForeignKey(te => te.CrewMemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationship: TimeEntry -> Job
+            entity.HasOne(te => te.Job)
+                .WithMany()
+                .HasForeignKey(te => te.JobId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
