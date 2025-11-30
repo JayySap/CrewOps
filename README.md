@@ -1,6 +1,6 @@
 # CrewOps
 
-A field crew management system built with .NET 8 Web API.
+A field crew management system built with .NET 8 Web API. Manage crews, jobs, assignments, and track working hours.
 
 ## Tech Stack
 
@@ -9,6 +9,14 @@ A field crew management system built with .NET 8 Web API.
 - **Entity Framework Core 8** (ORM)
 - **SQLite** database
 - **Swagger/OpenAPI** for API documentation
+
+## Features
+
+- Crew member management (CRUD)
+- Job management with status tracking
+- Assign crew members to jobs with roles
+- Time tracking with clock in/out functionality
+- Work history and duration tracking
 
 ## Getting Started
 
@@ -62,27 +70,65 @@ dotnet ef migrations add <MigrationName>
 | POST | `/api/jobs` | Create a new job |
 | PUT | `/api/jobs/{id}` | Update a job |
 | DELETE | `/api/jobs/{id}` | Delete a job |
+| POST | `/api/jobs/{id}/assign` | Assign a crew member to a job |
+| GET | `/api/jobs/{id}/crew` | Get crew members assigned to a job |
+
+### Time Tracking
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/time/clockin` | Clock in to a job |
+| POST | `/api/time/clockout` | Clock out from current shift |
+| GET | `/api/time/active/{crewMemberId}` | Check if crew member is clocked in |
+| GET | `/api/time/history/{crewMemberId}` | Get time entry history |
 
 ## Project Structure
 
-```bash
-
+```
 CrewOps/
 ├── CrewOps.sln
+├── README.md
 └── src/
     └── CrewOps.API/
-        ├── Program.cs           # Entry point and endpoint registration
+        ├── Program.cs
         ├── Data/
         │   └── CrewOpsDbContext.cs
         ├── Endpoints/
         │   ├── CrewMemberEndpoints.cs
-        │   └── JobEndpoints.cs
+        │   ├── JobEndpoints.cs
+        │   └── TimeEntryEndpoints.cs
         ├── Models/
         │   ├── CrewMember.cs
         │   ├── Job.cs
-        │   └── JobStatus.cs
+        │   ├── JobStatus.cs
+        │   ├── JobAssignment.cs
+        │   └── TimeEntry.cs
         └── Migrations/
 ```
+
+## Data Models
+
+### CrewMember
+- Id, FirstName, LastName, Email, Status, CreatedAt
+
+### Job
+- Id, ReferenceNumber, Description, Location, Status, StartDate, EndDate, CreatedAt
+- Status: Pending, Scheduled, InProgress, Completed, Canceled
+
+### JobAssignment
+- JobId, CrewMemberId, Role, AssignedOn
+
+### TimeEntry
+- Id, CrewMemberId, JobId, ClockInTime, ClockOutTime, Notes
+
+## Contributing
+
+This repository uses branch protection. All changes must go through a pull request:
+
+1. Create a feature branch: `git checkout -b feature/your-feature`
+2. Make your changes and commit
+3. Push and create a pull request
+4. Get approval before merging
 
 ## License
 
