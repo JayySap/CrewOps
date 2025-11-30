@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using CrewOps.API.Data;
 using CrewOps.API.Models;
@@ -8,13 +9,15 @@ public static class TimeEntryEndpoints
 {
     public static RouteGroupBuilder MapTimeEntryEndpoints(this RouteGroupBuilder group)
     {
-        // POST /api/time/clockin
-        group.MapPost("/clockin", async (ClockInRequest request, CrewOpsDbContext db) =>
+        // POST /api/time/clockin - Requires authentication
+        group.MapPost("/clockin", async (ClockInRequest request, ClaimsPrincipal user, CrewOpsDbContext db) =>
         {
-            // Check if crew member exists
-            var crewMember = await db.CrewMembers.FindAsync(request.CrewMemberId);
-            if (crewMember is null)
-                return Results.NotFound("Crew member not found");
+            // Extract user ID from JWT claims
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null)
+                return Results.Unauthorized();
+
+            int crewMemberId = int.Parse(userIdClaim.Value);
 
             // Check if job exists
             var job = await db.Jobs.FindAsync(request.JobId);
@@ -23,7 +26,7 @@ public static class TimeEntryEndpoints
 
             // CRITICAL: Check if crew member already has an active time entry
             var activeEntry = await db.TimeEntries
-                .FirstOrDefaultAsync(te => te.CrewMemberId == request.CrewMemberId && te.ClockOutTime == null);
+                .FirstOrDefaultAsync(te => te.CrewMemberId == crewMemberId && te.ClockOutTime == null);
 
             if (activeEntry is not null)
                 return Results.BadRequest("Already clocked in. Please clock out first.");
@@ -31,7 +34,7 @@ public static class TimeEntryEndpoints
             // Create new time entry
             var timeEntry = new TimeEntry
             {
-                CrewMemberId = request.CrewMemberId,
+                CrewMemberId = crewMemberId,
                 JobId = request.JobId,
                 ClockInTime = DateTime.UtcNow,
                 Notes = request.Notes
@@ -51,15 +54,23 @@ public static class TimeEntryEndpoints
             });
         })
         .WithName("ClockIn")
-        .WithOpenApi();
+        .WithOpenApi()
+        .RequireAuthorization();
 
-        // POST /api/time/clockout
-        group.MapPost("/clockout", async (ClockOutRequest request, CrewOpsDbContext db) =>
+        // POST /api/time/clockout - Requires authentication
+        group.MapPost("/clockout", async (ClockOutRequest request, ClaimsPrincipal user, CrewOpsDbContext db) =>
         {
+            // Extract user ID from JWT claims
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null)
+                return Results.Unauthorized();
+
+            int crewMemberId = int.Parse(userIdClaim.Value);
+
             // Find active time entry for this crew member
             var activeEntry = await db.TimeEntries
                 .Include(te => te.Job)
-                .FirstOrDefaultAsync(te => te.CrewMemberId == request.CrewMemberId && te.ClockOutTime == null);
+                .FirstOrDefaultAsync(te => te.CrewMemberId == crewMemberId && te.ClockOutTime == null);
 
             if (activeEntry is null)
                 return Results.BadRequest("No active shift found. Please clock in first.");
@@ -99,12 +110,19 @@ public static class TimeEntryEndpoints
             });
         })
         .WithName("ClockOut")
-        .WithOpenApi();
+        .WithOpenApi()
+        .RequireAuthorization();
 
-        // GET /api/time/history/{crewMemberId}
-        group.MapGet("/history/{crewMemberId}", async (int crewMemberId, CrewOpsDbContext db) =>
+        // GET /api/time/history - Get own history (authenticated)
+        group.MapGet("/history", async (ClaimsPrincipal user, CrewOpsDbContext db) =>
         {
-            // Check if crew member exists
+            // Extract user ID from JWT claims
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null)
+                return Results.Unauthorized();
+
+            int crewMemberId = int.Parse(userIdClaim.Value);
+
             var crewMember = await db.CrewMembers.FindAsync(crewMemberId);
             if (crewMember is null)
                 return Results.NotFound("Crew member not found");
@@ -139,11 +157,19 @@ public static class TimeEntryEndpoints
             });
         })
         .WithName("GetTimeHistory")
-        .WithOpenApi();
+        .WithOpenApi()
+        .RequireAuthorization();
 
-        // GET /api/time/active/{crewMemberId} - Check if currently clocked in
-        group.MapGet("/active/{crewMemberId}", async (int crewMemberId, CrewOpsDbContext db) =>
+        // GET /api/time/active - Check if currently clocked in (authenticated)
+        group.MapGet("/active", async (ClaimsPrincipal user, CrewOpsDbContext db) =>
         {
+            // Extract user ID from JWT claims
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null)
+                return Results.Unauthorized();
+
+            int crewMemberId = int.Parse(userIdClaim.Value);
+
             var activeEntry = await db.TimeEntries
                 .Include(te => te.Job)
                 .FirstOrDefaultAsync(te => te.CrewMemberId == crewMemberId && te.ClockOutTime == null);
@@ -165,12 +191,13 @@ public static class TimeEntryEndpoints
             });
         })
         .WithName("GetActiveShift")
-        .WithOpenApi();
+        .WithOpenApi()
+        .RequireAuthorization();
 
         return group;
     }
 }
 
-// Request DTOs
-public record ClockInRequest(int CrewMemberId, int JobId, string? Notes);
-public record ClockOutRequest(int CrewMemberId, string? Notes);
+// Request DTOs - no longer need CrewMemberId (comes from JWT)
+public record ClockInRequest(int JobId, string? Notes);
+public record ClockOutRequest(string? Notes);

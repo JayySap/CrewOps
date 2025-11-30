@@ -3,6 +3,7 @@ using System;
 using CrewOps.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CrewOps.API.Migrations
 {
     [DbContext(typeof(CrewOpsDbContext))]
-    partial class CrewOpsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251130012431_AddPasswordHashAndRole")]
+    partial class AddPasswordHashAndRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
