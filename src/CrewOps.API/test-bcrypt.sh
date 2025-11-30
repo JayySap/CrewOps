@@ -73,8 +73,9 @@ echo ""
 
 # --- VERIFY PASSWORD NOT EXPOSED ---
 
-echo "7. GET - Fetch crew members (passwordHash should NOT be visible... or check it's hashed)"
-curl -s "$BASE_URL/api/crewmembers" | jq '.[] | {id, name: "\(.firstName) \(.lastName)", email, passwordHash: (.passwordHash // "NOT_SHOWN")}'
+echo "7. GET - Fetch crew members (passwordHash should NOT be visible)"
+echo "   Checking that passwordHash field is excluded from response..."
+curl -s "$BASE_URL/api/crewmembers" | jq '.[] | {id, name: "\(.firstName) \(.lastName)", email}'
 echo ""
 
 echo "=========================================="

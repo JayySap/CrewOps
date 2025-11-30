@@ -8,18 +8,42 @@ public static class CrewMemberEndpoints
 {
     public static RouteGroupBuilder MapCrewMemberEndpoints(this RouteGroupBuilder group)
     {
-        // GET all crew members
+        // GET all crew members (excludes passwordHash for security)
         group.MapGet("/", async (CrewOpsDbContext db) =>
         {
-            return Results.Ok(await db.CrewMembers.ToListAsync());
+            var members = await db.CrewMembers
+                .Select(m => new
+                {
+                    m.Id,
+                    m.FirstName,
+                    m.LastName,
+                    m.Email,
+                    m.Status,
+                    m.Role,
+                    m.CreatedAt
+                })
+                .ToListAsync();
+            return Results.Ok(members);
         })
         .WithName("GetAllCrewMembers")
         .WithOpenApi();
 
-        // GET a single crew member by ID
+        // GET a single crew member by ID (excludes passwordHash for security)
         group.MapGet("/{id}", async (int id, CrewOpsDbContext db) =>
         {
-            var member = await db.CrewMembers.FindAsync(id);
+            var member = await db.CrewMembers
+                .Where(m => m.Id == id)
+                .Select(m => new
+                {
+                    m.Id,
+                    m.FirstName,
+                    m.LastName,
+                    m.Email,
+                    m.Status,
+                    m.Role,
+                    m.CreatedAt
+                })
+                .FirstOrDefaultAsync();
             return member is not null ? Results.Ok(member) : Results.NotFound();
         })
         .WithName("GetCrewMember")
@@ -61,18 +85,29 @@ public static class CrewMemberEndpoints
         .WithOpenApi();
 
         // PUT - Update an existing crew member
-        group.MapPut("/{id}", async (int id, CrewMember updatedMember, CrewOpsDbContext db) =>
+        group.MapPut("/{id}", async (int id, UpdateCrewMemberRequest request, CrewOpsDbContext db) =>
         {
             var member = await db.CrewMembers.FindAsync(id);
             if (member is null) return Results.NotFound();
 
-            member.FirstName = updatedMember.FirstName;
-            member.LastName = updatedMember.LastName;
-            member.Email = updatedMember.Email;
-            member.Status = updatedMember.Status;
+            member.FirstName = request.FirstName;
+            member.LastName = request.LastName;
+            member.Email = request.Email;
+            member.Status = request.Status;
 
             await db.SaveChangesAsync();
-            return Results.Ok(member);
+
+            // Return response without password/hash
+            return Results.Ok(new
+            {
+                member.Id,
+                member.FirstName,
+                member.LastName,
+                member.Email,
+                member.Status,
+                member.Role,
+                member.CreatedAt
+            });
         })
         .WithName("UpdateCrewMember")
         .WithOpenApi();
@@ -102,4 +137,12 @@ public record CreateCrewMemberRequest(
     string Email,
     string Password,
     string? Role
+);
+
+// Request DTO for updating crew members (no password - use set-password endpoint)
+public record UpdateCrewMemberRequest(
+    string FirstName,
+    string LastName,
+    string Email,
+    string Status
 );
