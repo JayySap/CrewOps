@@ -26,12 +26,36 @@ public static class CrewMemberEndpoints
         .WithOpenApi();
 
         // POST - Create a new crew member
-        group.MapPost("/", async (CrewMember member, CrewOpsDbContext db) =>
+        group.MapPost("/", async (CreateCrewMemberRequest request, CrewOpsDbContext db) =>
         {
-            member.CreatedAt = DateTime.UtcNow;
+            // Hash the password using BCrypt
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var member = new CrewMember
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Status = "Active",
+                Role = request.Role ?? "CrewMember",
+                PasswordHash = passwordHash,
+                CreatedAt = DateTime.UtcNow
+            };
+
             db.CrewMembers.Add(member);
             await db.SaveChangesAsync();
-            return Results.Created($"/api/crewmembers/{member.Id}", member);
+
+            // Return response without password/hash
+            return Results.Created($"/api/crewmembers/{member.Id}", new
+            {
+                member.Id,
+                member.FirstName,
+                member.LastName,
+                member.Email,
+                member.Status,
+                member.Role,
+                member.CreatedAt
+            });
         })
         .WithName("CreateCrewMember")
         .WithOpenApi();
@@ -70,3 +94,12 @@ public static class CrewMemberEndpoints
         return group;
     }
 }
+
+// Request DTO for creating crew members
+public record CreateCrewMemberRequest(
+    string FirstName,
+    string LastName,
+    string Email,
+    string Password,
+    string? Role
+);
