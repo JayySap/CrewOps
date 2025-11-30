@@ -49,6 +49,13 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Seed the database with admin user if empty
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CrewOpsDbContext>();
+    DbInitializer.Initialize(context);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

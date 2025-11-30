@@ -18,8 +18,12 @@ public static class AuthEndpoints
             if (member is null)
                 return Results.Unauthorized();
 
-            // Verify password (simple string comparison for now - will add hashing later)
-            if (member.PasswordHash != request.Password)
+            // Check if user has a password set
+            if (string.IsNullOrEmpty(member.PasswordHash))
+                return Results.Unauthorized();
+
+            // Verify password using BCrypt
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, member.PasswordHash))
                 return Results.Unauthorized();
 
             // Generate JWT token
@@ -43,8 +47,8 @@ public static class AuthEndpoints
             if (member is null)
                 return Results.NotFound("Crew member not found");
 
-            // Set password (plain text for now - will add hashing later)
-            member.PasswordHash = request.Password;
+            // Hash password using BCrypt before saving
+            member.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
             await db.SaveChangesAsync();
 
             return Results.Ok(new { Message = "Password set successfully" });
