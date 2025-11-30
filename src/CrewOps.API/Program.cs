@@ -1,7 +1,11 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using CrewOps.API.Data;
 using CrewOps.API.Models;
 using CrewOps.API.Endpoints;
+using CrewOps.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,28 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddDbContext<CrewOpsDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register JwtService
+builder.Services.AddScoped<JwtService>();
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "CrewOps",
+            ValidAudience = "CrewOps",
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(JwtService.SecretKeyValue))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,6 +57,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Authentication & Authorization middleware (order matters!)
+app.UseAuthentication();
+app.UseAuthorization();
 
 // ============================================
 // YOUR FIRST CUSTOM ENDPOINT
@@ -66,6 +96,10 @@ app.MapGroup("/api/jobs")
 app.MapGroup("/api/time")
     .WithTags("TimeTracking")
     .MapTimeEntryEndpoints();
+
+app.MapGroup("/api/auth")
+    .WithTags("Authentication")
+    .MapAuthEndpoints();
 
 // ============================================
 // DEFAULT WEATHER ENDPOINT (from template)

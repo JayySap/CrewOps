@@ -20,6 +20,12 @@ public class CrewMember
     // Example of a simple status - could be "Active", "OnLeave", "Inactive"
     public string Status { get; set; } = "Active";
 
+    // Password hash for authentication (nullable for existing data)
+    public string? PasswordHash { get; set; }
+
+    // Role for authorization (e.g., "Admin", "CrewMember")
+    public string Role { get; set; } = "CrewMember";
+
     // When this crew member was added to the system
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
