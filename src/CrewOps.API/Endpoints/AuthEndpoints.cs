@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using CrewOps.API.Data;
 using CrewOps.API.Services;
+using CrewOps.Shared.DTOs;
 
 namespace CrewOps.API.Endpoints;
 
@@ -61,7 +62,3 @@ public static class AuthEndpoints
     }
 }
 
-// Request/Response DTOs
-public record LoginRequest(string Email, string Password);
-public record LoginResponse(string Token, int UserId, string Name, string Role);
-public record SetPasswordRequest(int CrewMemberId, string Password);

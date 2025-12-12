@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CrewOps.API.Data;
-using CrewOps.API.Models;
+using CrewOps.Shared.Models;
 
 namespace CrewOps.API.Endpoints;
 

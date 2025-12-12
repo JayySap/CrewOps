@@ -1,7 +1,8 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using CrewOps.API.Data;
-using CrewOps.API.Models;
+using CrewOps.Shared.Models;
+using CrewOps.Shared.DTOs;
 
 namespace CrewOps.API.Endpoints;
 
@@ -198,6 +199,3 @@ public static class TimeEntryEndpoints
     }
 }
 
-// Request DTOs - no longer need CrewMemberId (comes from JWT)
-public record ClockInRequest(int JobId, string? Notes);
-public record ClockOutRequest(string? Notes);
