@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Teacher's Note: Shell is MAUI's navigation container.
+    It provides:
+    - Tab bar navigation
+    - Flyout (hamburger) menu
+    - URI-based navigation (like web URLs)
+
+    Key concepts:
+    - ShellContent: A single page in the navigation hierarchy
+    - Route: The "URL" used for navigation (e.g., Shell.Current.GoToAsync("LoginPage"))
+    - FlyoutBehavior: Controls the hamburger menu (Disabled = no menu)
+-->
 <Shell
     x:Class="CrewOps.App.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:CrewOps.App"
+    xmlns:views="clr-namespace:CrewOps.App.Views"
     Shell.FlyoutBehavior="Disabled"
-    Title="CrewOps.App">
+    Title="CrewOps">
 
+    <!--
+        Login Page - First screen the user sees
+        Teacher's Note: The order of ShellContent items determines the default page.
+        The first one is shown when the app starts.
+    -->
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="LoginPage" />
+
+    <!--
+        Main Page - After successful login (for now, kept for reference)
+        TODO: In future phases, navigate here after login
+    -->
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"

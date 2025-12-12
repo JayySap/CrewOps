@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Teacher's Note: This is a XAML file - eXtensible Application Markup Language.
+    XAML is used to define the UI declaratively (like HTML for web).
+
+    Key concepts:
+    - ContentPage: A single screen/page in the app
+    - x:Class: Links this XAML to its C# code-behind file
+    - xmlns: XML namespaces (like imports in C#)
+    - {Binding PropertyName}: Data binding to ViewModel properties
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:CrewOps.App.ViewModels"
+             x:Class="CrewOps.App.Views.LoginPage"
+             x:DataType="viewmodels:LoginViewModel"
+             Title="Login"
+             BackgroundColor="{StaticResource Gray100}">
+
+    <!--
+        Teacher's Note: x:DataType enables compiled bindings.
+        This provides:
+        1. IntelliSense for binding expressions
+        2. Compile-time error checking
+        3. Better performance (no reflection at runtime)
+    -->
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30"
+            Spacing="20"
+            VerticalOptions="Center">
+
+            <!-- App Logo/Title -->
+            <Label
+                Text="CrewOps"
+                FontSize="40"
+                FontAttributes="Bold"
+                TextColor="{StaticResource Primary}"
+                HorizontalOptions="Center"/>
+
+            <Label
+                Text="Field Crew Management"
+                FontSize="16"
+                TextColor="{StaticResource Gray500}"
+                HorizontalOptions="Center"
+                Margin="0,0,0,20"/>
+
+            <!-- Login Form -->
+            <Frame
+                Padding="20"
+                CornerRadius="10"
+                BackgroundColor="White"
+                BorderColor="Transparent"
+                HasShadow="True">
+
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- Email Entry -->
+                    <Label
+                        Text="Email"
+                        FontSize="14"
+                        TextColor="{StaticResource Gray600}"/>
+
+                    <Entry
+                        Text="{Binding Email}"
+                        Placeholder="Enter your email"
+                        Keyboard="Email"
+                        TextColor="Black"
+                        PlaceholderColor="{StaticResource Gray400}"
+                        BackgroundColor="White"
+                        ReturnType="Next"/>
+
+                    <!-- Password Entry -->
+                    <Label
+                        Text="Password"
+                        FontSize="14"
+                        TextColor="{StaticResource Gray600}"/>
+
+                    <Entry
+                        Text="{Binding Password}"
+                        Placeholder="Enter your password"
+                        IsPassword="True"
+                        TextColor="Black"
+                        PlaceholderColor="{StaticResource Gray400}"
+                        BackgroundColor="White"
+                        ReturnType="Done"/>
+
+                    <!-- Error Message -->
+                    <!--
+                        Teacher's Note: IsVisible binding hides/shows based on whether
+                        ErrorMessage has content. This is a common pattern for validation.
+                    -->
+                    <Label
+                        Text="{Binding ErrorMessage}"
+                        TextColor="Red"
+                        FontSize="12"
+                        IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                        HorizontalOptions="Center"/>
+
+                    <!-- Login Button -->
+                    <!--
+                        Teacher's Note: Command binding connects the button to LoginCommand
+                        in the ViewModel. When clicked, the Login() method runs.
+                        IsEnabled is false while IsBusy is true (prevents double-clicks).
+                    -->
+                    <Button
+                        Text="Login"
+                        Command="{Binding LoginCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        CornerRadius="8"
+                        Margin="0,10,0,0"/>
+
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="{StaticResource Primary}"
+                        HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Version Info -->
+            <Label
+                Text="v1.0.0"
+                FontSize="12"
+                TextColor="{StaticResource Gray400}"
+                HorizontalOptions="Center"
+                Margin="0,20,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
