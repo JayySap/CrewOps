@@ -59,5 +59,6 @@ appsettings.*.local.json
 *.pfx
 *.p12
 
-# Claude Code context file
+# Claude Code files
 CLAUDE.md
+.claude/
