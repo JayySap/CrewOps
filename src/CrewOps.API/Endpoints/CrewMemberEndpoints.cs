@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using CrewOps.API.Data;
-using CrewOps.API.Models;
+using CrewOps.Shared.Models;
+using CrewOps.Shared.DTOs;
 
 namespace CrewOps.API.Endpoints;
 
@@ -130,19 +131,3 @@ public static class CrewMemberEndpoints
     }
 }
 
-// Request DTO for creating crew members
-public record CreateCrewMemberRequest(
-    string FirstName,
-    string LastName,
-    string Email,
-    string Password,
-    string? Role
-);
-
-// Request DTO for updating crew members (no password - use set-password endpoint)
-public record UpdateCrewMemberRequest(
-    string FirstName,
-    string LastName,
-    string Email,
-    string Status
-);

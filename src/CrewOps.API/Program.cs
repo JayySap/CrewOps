@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using CrewOps.API.Data;
-using CrewOps.API.Models;
 using CrewOps.API.Endpoints;
 using CrewOps.API.Services;
 
